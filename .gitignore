@@ -1,0 +1,78 @@
+# ========================
+# Build output
+# ========================
+target/
+build/
+out/
+*.class
+*.jar
+*.war
+*.ear
+!.mvn/wrapper/maven-wrapper.jar
+
+# ========================
+# IntelliJ IDEA
+# ========================
+.idea/
+*.iml
+*.ipr
+*.iws
+.idea_modules/
+
+# ========================
+# Eclipse / STS
+# ========================
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache
+
+# ========================
+# VS Code
+# ========================
+.vscode/
+
+# ========================
+# macOS
+# ========================
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ========================
+# Windows
+# ========================
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ========================
+# Environment & secrets
+# ========================
+.env
+.env.*
+!.env.example
+*.env.local
+application-local.yml
+application-local.properties
+
+# ========================
+# Logs
+# ========================
+*.log
+logs/
+spring.log
+
+# ========================
+# Maven dependency cache
+# ========================
+.m2/
+
+# ========================
+# Local agent instructions
+# ========================
+CLAUDE.md
+.claudeignore

@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: koins-loan-backend
+
+  security:
+    user:
+      name: devuser
+      password: devpassword123
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/koins_db
+    username: ${DB_USERNAME:koins}
+    password: ${DB_PASSWORD:koins_secret}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: update   # swap to 'validate' once Flyway migrations are in place
+    open-in-view: false
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        jdbc:
+          time_zone: UTC
+
+server:
+  port: 8080
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:change-this-to-a-256-bit-secret-in-production-env}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000}
