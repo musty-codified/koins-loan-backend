@@ -53,7 +53,7 @@ public class User {
     private void prePersist() {
         this.createdAt = LocalDateTime.now();
         if (this.status == null) {
-            this.status = UserStatus.ACTIVE;
+            this.status = UserStatus.INACTIVE;
         }
     }
 

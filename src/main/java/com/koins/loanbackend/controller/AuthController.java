@@ -1,17 +1,11 @@
 package com.koins.loanbackend.controller;
 
-import com.koins.loanbackend.dto.request.LoginRequest;
-import com.koins.loanbackend.dto.request.RegisterRequest;
+import com.koins.loanbackend.dto.request.*;
 import com.koins.loanbackend.dto.response.AuthResponse;
 import com.koins.loanbackend.dto.response.UserResponse;
-import com.koins.loanbackend.security.JwtTokenProvider;
 import com.koins.loanbackend.service.UserService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,8 +24,24 @@ public class AuthController {
         return userService.register(request);
     }
 
+
+    @PostMapping("/activate-user")
+    public UserResponse activateUser(@Valid @RequestBody ActivateRequest activateUserDto){
+        return userService.activateUser(activateUserDto);
+    }
     @PostMapping("/login")
     public AuthResponse login(@Valid @RequestBody LoginRequest request) {
         return userService.login(request);
+    }
+
+    @PostMapping("/forgot-password")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        userService.initiatePasswordReset(request);
+    }
+    @PostMapping("/reset-password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        userService.resetPassword(request);
     }
 }

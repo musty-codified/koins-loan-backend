@@ -2,47 +2,47 @@ package com.koins.loanbackend.service;
 
 import com.koins.loanbackend.domain.User;
 import com.koins.loanbackend.domain.Wallet;
+import com.koins.loanbackend.domain.enums.OtpPurpose;
 import com.koins.loanbackend.domain.enums.UserStatus;
-import com.koins.loanbackend.dto.request.LoginRequest;
-import com.koins.loanbackend.dto.request.RegisterRequest;
+import com.koins.loanbackend.dto.request.*;
 import com.koins.loanbackend.dto.response.AuthResponse;
 import com.koins.loanbackend.dto.response.UserResponse;
+import com.koins.loanbackend.exception.BusinessRuleException;
 import com.koins.loanbackend.exception.DuplicateResourceException;
 import com.koins.loanbackend.exception.ResourceNotFoundException;
-import com.koins.loanbackend.exception.UnauthorizedException;
 import com.koins.loanbackend.repository.UserRepository;
 import com.koins.loanbackend.security.JwtTokenProvider;
-import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 @Transactional
 public class UserService {
 
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
+
     private final UserRepository userRepository;
     private final WalletService walletService;
+    private final OtpService otpService;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
-    private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
-    public UserService(UserRepository userRepository, WalletService walletService,
-                       PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider,
+    public UserService(UserRepository userRepository,
+                       WalletService walletService,
+                       OtpService otpService,
+                       PasswordEncoder passwordEncoder,
+                       JwtTokenProvider jwtTokenProvider,
                        AuthenticationManager authenticationManager) {
         this.userRepository = userRepository;
         this.walletService = walletService;
+        this.otpService = otpService;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.authenticationManager = authenticationManager;
@@ -64,23 +64,57 @@ public class UserService {
         user.setBvn(request.getBvn());
         user.setNin(request.getNin());
         user = userRepository.save(user);
+        log.info("===============After UserRepository.save()==============");
+        otpService.generateAndStore(user.getEmail(), OtpPurpose.ACCOUNT_ACTIVATION);
+        return UserResponse.from(user);
+    }
 
+    public UserResponse activateUser(ActivateRequest activate) {
+        if (!otpService.validateAndConsume(activate.getEmail().toLowerCase(), OtpPurpose.ACCOUNT_ACTIVATION, activate.getOtp())) {
+            throw new BusinessRuleException("OTP is invalid or has expired");
+        }
+        User user = userRepository.findByEmail(activate.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        user.setStatus(UserStatus.ACTIVE);
         Wallet wallet = walletService.createForUser(user);
         user.setWallet(wallet);
-
         return UserResponse.from(user);
     }
 
 
-    public AuthResponse login(LoginRequest loginRequest) {
+    public AuthResponse login(LoginRequest request) {
         Authentication auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getEmail().toLowerCase(),
-                        loginRequest.getPassword()
-                )
+            new UsernamePasswordAuthenticationToken(
+                request.getEmail().toLowerCase(),
+                request.getPassword()
+            )
         );
         String token = jwtTokenProvider.generateToken(auth.getName());
-        log.info("Generated Token : {}", token);
         return new AuthResponse(token, jwtTokenProvider.getExpirationMs());
+    }
+
+    public void initiatePasswordReset(ForgotPasswordRequest request) {
+        String email = request.getEmail().toLowerCase();
+        userRepository.findByEmail(email)
+            .orElseThrow(() -> new ResourceNotFoundException("No account found for that email address"));
+        otpService.generateAndStore(email, OtpPurpose.PASSWORD_RESET);
+    }
+
+    @Transactional(readOnly = true)
+    public User getByEmail(String email) {
+        return userRepository.findByEmail(email.toLowerCase())
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
+
+    public void resetPassword(ResetPasswordRequest request) {
+        String email = request.getEmail().toLowerCase();
+        // OTP validation + atomic consumption — invalid or expired OTP aborts here
+        if (!otpService.validateAndConsume(email, OtpPurpose.PASSWORD_RESET, request.getOtp())) {
+            throw new BusinessRuleException("OTP is invalid or has expired");
+        }
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new ResourceNotFoundException("No account found for that email address"));
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
     }
 }
