@@ -43,3 +43,6 @@ app:
   jwt:
     secret: ${JWT_SECRET:change-this-to-a-256-bit-secret-in-production-env}
     expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+  admin:
+    email: ${ADMIN_EMAIL:admin@koins.com}
+    password: ${ADMIN_PASSWORD:Admin@Koins123!}

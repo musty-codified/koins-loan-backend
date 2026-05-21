@@ -1,7 +1,7 @@
 package com.koins.loanbackend.dto.response;
 
 import com.koins.loanbackend.domain.User;
-import com.koins.loanbackend.domain.enums.UserStatus;
+import com.koins.loanbackend.domain.enums.AccountStatus;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -12,7 +12,7 @@ public class UserResponse {
     private String name;
     private String email;
     private String phone;
-    private UserStatus status;
+    private AccountStatus status;
     private LocalDateTime createdAt;
     private WalletResponse wallet;
 
@@ -47,7 +47,7 @@ public class UserResponse {
         return phone;
     }
 
-    public UserStatus getStatus() {
+    public AccountStatus getStatus() {
         return status;
     }
 

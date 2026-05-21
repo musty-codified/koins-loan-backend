@@ -3,7 +3,7 @@ package com.koins.loanbackend.service;
 import com.koins.loanbackend.domain.User;
 import com.koins.loanbackend.domain.Wallet;
 import com.koins.loanbackend.domain.enums.OtpPurpose;
-import com.koins.loanbackend.domain.enums.UserStatus;
+import com.koins.loanbackend.domain.enums.AccountStatus;
 import com.koins.loanbackend.dto.request.*;
 import com.koins.loanbackend.dto.response.AuthResponse;
 import com.koins.loanbackend.dto.response.UserResponse;
@@ -15,6 +15,7 @@ import com.koins.loanbackend.security.JwtTokenProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -64,7 +65,6 @@ public class UserService {
         user.setBvn(request.getBvn());
         user.setNin(request.getNin());
         user = userRepository.save(user);
-        log.info("===============After UserRepository.save()==============");
         otpService.generateAndStore(user.getEmail(), OtpPurpose.ACCOUNT_ACTIVATION);
         return UserResponse.from(user);
     }
@@ -75,7 +75,7 @@ public class UserService {
         }
         User user = userRepository.findByEmail(activate.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        user.setStatus(UserStatus.ACTIVE);
+        user.setStatus(AccountStatus.ACTIVE);
         Wallet wallet = walletService.createForUser(user);
         user.setWallet(wallet);
         return UserResponse.from(user);
@@ -84,26 +84,36 @@ public class UserService {
 
     public AuthResponse login(LoginRequest request) {
         Authentication auth = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(
-                request.getEmail().toLowerCase(),
-                request.getPassword()
-            )
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail().toLowerCase(),
+                        request.getPassword()
+                )
         );
-        String token = jwtTokenProvider.generateToken(auth.getName());
-        return new AuthResponse(token, jwtTokenProvider.getExpirationMs());
+
+        if (auth.isAuthenticated()) {
+            User user = userRepository.findByEmail(request.getEmail())
+                    .orElseThrow(() -> new BadCredentialsException("Invalid login credential"));
+            if (!user.getStatus().equals(AccountStatus.ACTIVE)) {
+                throw new BusinessRuleException("User not active. Please activate your account");
+            }
+            log.info("Generating access token for {}", user.getEmail());
+            String token = jwtTokenProvider.generateToken(auth.getName());
+            return new AuthResponse(token, jwtTokenProvider.getExpirationMs());
+        }
+        throw new BadCredentialsException("Invalid username or password");
     }
 
     public void initiatePasswordReset(ForgotPasswordRequest request) {
         String email = request.getEmail().toLowerCase();
         userRepository.findByEmail(email)
-            .orElseThrow(() -> new ResourceNotFoundException("No account found for that email address"));
+                .orElseThrow(() -> new ResourceNotFoundException("No account found for that email address"));
         otpService.generateAndStore(email, OtpPurpose.PASSWORD_RESET);
     }
 
     @Transactional(readOnly = true)
     public User getByEmail(String email) {
         return userRepository.findByEmail(email.toLowerCase())
-            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
     public void resetPassword(ResetPasswordRequest request) {
@@ -113,7 +123,7 @@ public class UserService {
             throw new BusinessRuleException("OTP is invalid or has expired");
         }
         User user = userRepository.findByEmail(email)
-            .orElseThrow(() -> new ResourceNotFoundException("No account found for that email address"));
+                .orElseThrow(() -> new ResourceNotFoundException("No account found for that email address"));
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
     }

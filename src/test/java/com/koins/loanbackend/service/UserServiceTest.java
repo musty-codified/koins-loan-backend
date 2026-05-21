@@ -3,7 +3,7 @@ package com.koins.loanbackend.service;
 import com.koins.loanbackend.domain.User;
 import com.koins.loanbackend.domain.Wallet;
 import com.koins.loanbackend.domain.enums.OtpPurpose;
-import com.koins.loanbackend.domain.enums.UserStatus;
+import com.koins.loanbackend.domain.enums.AccountStatus;
 import com.koins.loanbackend.domain.enums.WalletStatus;
 import com.koins.loanbackend.dto.request.ActivateRequest;
 import com.koins.loanbackend.dto.request.RegisterRequest;
@@ -68,7 +68,7 @@ class UserServiceTest {
         UserResponse response = userService.register(validRequest);
 
         assertThat(response.getEmail()).isEqualTo("jane@example.com");
-        assertThat(response.getStatus()).isEqualTo(UserStatus.INACTIVE);
+        assertThat(response.getStatus()).isEqualTo(AccountStatus.PENDING);
         assertThat(response.getWallet()).isNull();
     }
 
@@ -167,7 +167,7 @@ class UserServiceTest {
 
         UserResponse response = userService.activateUser(request);
 
-        assertThat(response.getStatus()).isEqualTo(UserStatus.ACTIVE);
+        assertThat(response.getStatus()).isEqualTo(AccountStatus.ACTIVE);
         assertThat(response.getWallet()).isNotNull();
         assertThat(response.getWallet().getBalance()).isEqualByComparingTo(BigDecimal.ZERO);
         assertThat(response.getWallet().getCurrency()).isEqualTo("NGN");
@@ -209,7 +209,7 @@ class UserServiceTest {
 
     private User inactiveUser(User user) {
         if (user == null) user = new User();
-        user.setStatus(UserStatus.INACTIVE);
+        user.setStatus(AccountStatus.PENDING);
         return user;
     }
 

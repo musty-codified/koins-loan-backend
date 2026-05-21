@@ -24,7 +24,6 @@ public class AuthController {
         return userService.register(request);
     }
 
-
     @PostMapping("/activate-user")
     public UserResponse activateUser(@Valid @RequestBody ActivateRequest activateUserDto){
         return userService.activateUser(activateUserDto);

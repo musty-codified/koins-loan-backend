@@ -1,6 +1,7 @@
 package com.koins.loanbackend.domain;
 
-import com.koins.loanbackend.domain.enums.UserStatus;
+import com.koins.loanbackend.domain.enums.UserRole;
+import com.koins.loanbackend.domain.enums.AccountStatus;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -40,7 +41,11 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private UserStatus status;
+    private AccountStatus status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 10)
+    private UserRole role;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -52,9 +57,8 @@ public class User {
     @PrePersist
     private void prePersist() {
         this.createdAt = LocalDateTime.now();
-        if (this.status == null) {
-            this.status = UserStatus.INACTIVE;
-        }
+        if (this.status == null) this.status = AccountStatus.PENDING;
+        if (this.role == null)   this.role   = UserRole.USER;
     }
 
     public UUID getId() { return id; }
@@ -77,10 +81,13 @@ public class User {
     public String getNin() { return nin; }
     public void setNin(String nin) { this.nin = nin; }
 
-    public UserStatus getStatus() { return status; }
-    public void setStatus(UserStatus status) { this.status = status; }
+    public AccountStatus getStatus() { return status; }
+    public void setStatus(AccountStatus status) { this.status = status; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
+
+    public UserRole getRole() { return role; }
+    public void setRole(UserRole role) { this.role = role; }
 
     public Wallet getWallet() { return wallet; }
     public void setWallet(Wallet wallet) { this.wallet = wallet; }
