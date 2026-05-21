@@ -46,3 +46,6 @@ app:
   admin:
     email: ${ADMIN_EMAIL:admin@koins.com}
     password: ${ADMIN_PASSWORD:Admin@Koins123!}
+  loan:
+    late-fee-rate: ${LATE_FEE_RATE:0.02}        # 2 % of total installment, charged once on transition to OVERDUE
+    default-threshold: ${DEFAULT_THRESHOLD:3}    # consecutive overdue installments before loan is DEFAULTED

@@ -12,6 +12,7 @@ import com.koins.loanbackend.exception.BusinessRuleException;
 import com.koins.loanbackend.exception.ResourceNotFoundException;
 import com.koins.loanbackend.repository.LoanRepository;
 import com.koins.loanbackend.repository.RepaymentScheduleRepository;
+import com.koins.loanbackend.repository.WalletRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -30,24 +31,32 @@ public class LoanService {
 
     private final LoanRepository loanRepository;
     private final RepaymentScheduleRepository scheduleRepository;
+    private final WalletRepository walletRepository;
     private final LoanAmortizationService amortizationService;
     private final TransactionService transactionService;
     private final WalletService walletService;
     private final Logger log = LoggerFactory.getLogger(LoanService.class);
     public LoanService(LoanRepository loanRepository,
-                       RepaymentScheduleRepository scheduleRepository,
+                       RepaymentScheduleRepository scheduleRepository, WalletRepository walletRepository,
                        LoanAmortizationService amortizationService,
                        TransactionService transactionService,
                        WalletService walletService) {
         this.loanRepository = loanRepository;
         this.scheduleRepository = scheduleRepository;
+        this.walletRepository = walletRepository;
         this.amortizationService = amortizationService;
         this.transactionService = transactionService;
         this.walletService = walletService;
     }
 
     public Loan apply(User user, BigDecimal loanAmount, Integer tenureMonths) {
-        log.info("======== Initiating Loan application ===========");
+       Wallet wallet = walletRepository.findByUserId(user.getId()).
+                orElseThrow(()-> new ResourceNotFoundException("Wallet not found"));
+       BigDecimal walletBalance = wallet.getBalance();
+       BigDecimal threeTimesWalletBalance = new BigDecimal(3).multiply(walletBalance);
+       if (loanAmount.compareTo(threeTimesWalletBalance) > 0){
+           throw new BusinessRuleException("Loan amount must not exceed 3× wallet balance");
+       }
         Loan loan = new Loan();
         loan.setUser(user);
         loan.setLoanAmount(loanAmount);
@@ -58,15 +67,8 @@ public class LoanService {
 
     /**
      * Transitions a PENDING loan to APPROVED and persists the full repayment
-     * schedule in one atomic transaction. If schedule generation or any save
-     * fails the entire operation rolls back — no partial schedules, no orphaned
-     * status changes.
+     * schedule in one atomic transaction.
      */
-    public Loan approveLoan(UUID loanId) {
-        return approveLoan(loanId, DEFAULT_METHOD);
-    }
-
-
     public Loan approveLoan(UUID loanId, AmortizationMethod method) {
         Loan loan = loanRepository.findByIdWithLock(loanId)
             .orElseThrow(() -> new ResourceNotFoundException("Loan not found"));
@@ -77,7 +79,6 @@ public class LoanService {
         }
 
         loan.setStatus(LoanStatus.APPROVED);
-
         List<RepaymentSchedule> schedule = amortizationService.generateSchedule(loan, method);
         scheduleRepository.saveAll(schedule);
 
@@ -93,9 +94,6 @@ public class LoanService {
                 "Only APPROVED loans can be disbursed — current status: " + loan.getStatus());
         }
 
-        // Credit the borrower's wallet before updating the loan status.
-        // If the wallet credit fails the transaction rolls back, keeping the loan APPROVED
-        // and making the operation safely retryable with the same idempotency key.
         User borrower = loan.getUser();
         Wallet wallet = walletService.getWalletByUserId(borrower.getId());
         transactionService.credit(
@@ -131,13 +129,16 @@ public class LoanService {
         }
 
         RepaymentSchedule nextInstallment = scheduleRepository
-            .findFirstByLoanIdAndStatusOrderByInstallmentNumberAsc(loanId, RepaymentScheduleStatus.UNPAID)
+            .findFirstByLoanIdAndStatusInOrderByInstallmentNumberAsc(
+                loanId, List.of(RepaymentScheduleStatus.UNPAID, RepaymentScheduleStatus.OVERDUE))
             .orElseThrow(() -> new BusinessRuleException("No outstanding installments found for this loan"));
 
-        if (amount.compareTo(nextInstallment.getTotalInstallment()) != 0) {
+        BigDecimal required = nextInstallment.getTotalInstallment().add(nextInstallment.getLateFee());
+        if (amount.compareTo(required) != 0) {
             throw new BusinessRuleException(String.format(
-                "Repayment amount must equal installment #%d total of %s",
-                nextInstallment.getInstallmentNumber(), nextInstallment.getTotalInstallment()));
+                "Repayment amount must equal installment #%d amount due of %s (installment: %s, late fee: %s)",
+                nextInstallment.getInstallmentNumber(), required,
+                nextInstallment.getTotalInstallment(), nextInstallment.getLateFee()));
         }
 
         Wallet wallet = walletService.getWalletByUserId(user.getId());
@@ -150,8 +151,9 @@ public class LoanService {
 
         nextInstallment.setStatus(RepaymentScheduleStatus.PAID);
 
-        long remainingUnpaid = scheduleRepository.countByLoanIdAndStatus(loanId, RepaymentScheduleStatus.UNPAID);
-        if (remainingUnpaid == 0) {
+        long remaining = scheduleRepository.countByLoanIdAndStatus(loanId, RepaymentScheduleStatus.UNPAID)
+            + scheduleRepository.countByLoanIdAndStatus(loanId, RepaymentScheduleStatus.OVERDUE);
+        if (remaining == 0) {
             loan.setStatus(LoanStatus.REPAID);
         }
 

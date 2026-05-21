@@ -118,7 +118,6 @@ public class LoanAmortizationService {
         rs.setPrincipalAmount(principal);
         rs.setInterestAmount(interest);
         rs.setTotalInstallment(total);
-        // status defaults to UNPAID via @PrePersist
         return rs;
     }
 }

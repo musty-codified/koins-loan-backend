@@ -18,6 +18,9 @@ public interface RepaymentScheduleRepository extends JpaRepository<RepaymentSche
     Optional<RepaymentSchedule> findFirstByLoanIdAndStatusOrderByInstallmentNumberAsc(
         UUID loanId, RepaymentScheduleStatus status);
 
+    Optional<RepaymentSchedule> findFirstByLoanIdAndStatusInOrderByInstallmentNumberAsc(
+        UUID loanId, List<RepaymentScheduleStatus> statuses);
+
     long countByLoanIdAndStatus(UUID loanId, RepaymentScheduleStatus status);
 
     List<RepaymentSchedule> findByDueDateBeforeAndStatus(LocalDate date, RepaymentScheduleStatus status);

@@ -40,6 +40,9 @@ public class RepaymentSchedule {
     @Column(name = "total_installment", nullable = false, precision = 19, scale = 2)
     private BigDecimal totalInstallment;
 
+    @Column(name = "late_fee", nullable = false, precision = 19, scale = 2)
+    private BigDecimal lateFee;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
     private RepaymentScheduleStatus status;
@@ -50,7 +53,8 @@ public class RepaymentSchedule {
     @PrePersist
     private void prePersist() {
         createdAt = LocalDateTime.now();
-        if (status == null) status = RepaymentScheduleStatus.UNPAID;
+        if (status == null)  status  = RepaymentScheduleStatus.UNPAID;
+        if (lateFee == null) lateFee = BigDecimal.ZERO.setScale(2);
     }
 
     public UUID getId() { return id; }
@@ -72,6 +76,9 @@ public class RepaymentSchedule {
 
     public BigDecimal getTotalInstallment() { return totalInstallment; }
     public void setTotalInstallment(BigDecimal totalInstallment) { this.totalInstallment = totalInstallment; }
+
+    public BigDecimal getLateFee() { return lateFee; }
+    public void setLateFee(BigDecimal lateFee) { this.lateFee = lateFee; }
 
     public RepaymentScheduleStatus getStatus() { return status; }
     public void setStatus(RepaymentScheduleStatus status) { this.status = status; }

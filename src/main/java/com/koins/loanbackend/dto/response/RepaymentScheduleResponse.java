@@ -17,6 +17,8 @@ public class RepaymentScheduleResponse {
     private BigDecimal principalAmount;
     private BigDecimal interestAmount;
     private BigDecimal totalInstallment;
+    private BigDecimal lateFee;
+    private BigDecimal amountDue;
     private RepaymentScheduleStatus status;
     private LocalDateTime createdAt;
 
@@ -29,6 +31,8 @@ public class RepaymentScheduleResponse {
         r.principalAmount = rs.getPrincipalAmount();
         r.interestAmount = rs.getInterestAmount();
         r.totalInstallment = rs.getTotalInstallment();
+        r.lateFee = rs.getLateFee();
+        r.amountDue = rs.getTotalInstallment().add(rs.getLateFee());
         r.status = rs.getStatus();
         r.createdAt = rs.getCreatedAt();
         return r;
@@ -41,6 +45,8 @@ public class RepaymentScheduleResponse {
     public BigDecimal getPrincipalAmount() { return principalAmount; }
     public BigDecimal getInterestAmount() { return interestAmount; }
     public BigDecimal getTotalInstallment() { return totalInstallment; }
+    public BigDecimal getLateFee() { return lateFee; }
+    public BigDecimal getAmountDue() { return amountDue; }
     public RepaymentScheduleStatus getStatus() { return status; }
     public LocalDateTime getCreatedAt() { return createdAt; }
 }
