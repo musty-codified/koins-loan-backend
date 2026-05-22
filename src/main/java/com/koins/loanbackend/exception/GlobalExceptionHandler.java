@@ -48,6 +48,12 @@ public class GlobalExceptionHandler {
         return new ApiErrorResponse(422, "Unprocessable Entity", ex.getMessage(), req.getRequestURI());
     }
 
+    @ExceptionHandler(WebhookSignatureException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ApiErrorResponse handleWebhookSignature(WebhookSignatureException ex, HttpServletRequest req) {
+        return new ApiErrorResponse(401, "Unauthorized", ex.getMessage(), req.getRequestURI());
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ApiErrorResponse handleGeneric(Exception ex, HttpServletRequest req) {

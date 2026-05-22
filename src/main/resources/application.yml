@@ -49,3 +49,6 @@ app:
   loan:
     late-fee-rate: ${LATE_FEE_RATE:0.02}        # 2 % of total installment, charged once on transition to OVERDUE
     default-threshold: ${DEFAULT_THRESHOLD:3}    # consecutive overdue installments before loan is DEFAULTED
+  paystack:
+    secret-key: ${PAYSTACK_SECRET_KEY:sk_test_replace_in_production}
+
