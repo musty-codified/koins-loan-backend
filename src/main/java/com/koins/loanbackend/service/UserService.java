@@ -12,6 +12,7 @@ import com.koins.loanbackend.exception.DuplicateResourceException;
 import com.koins.loanbackend.exception.ResourceNotFoundException;
 import com.koins.loanbackend.repository.UserRepository;
 import com.koins.loanbackend.security.JwtTokenProvider;
+import com.koins.loanbackend.security.TokenBlocklistService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,19 +35,22 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
+    private final TokenBlocklistService tokenBlocklistService;
 
     public UserService(UserRepository userRepository,
                        WalletService walletService,
                        OtpService otpService,
                        PasswordEncoder passwordEncoder,
                        JwtTokenProvider jwtTokenProvider,
-                       AuthenticationManager authenticationManager) {
+                       AuthenticationManager authenticationManager,
+                       TokenBlocklistService tokenBlocklistService) {
         this.userRepository = userRepository;
         this.walletService = walletService;
         this.otpService = otpService;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.authenticationManager = authenticationManager;
+        this.tokenBlocklistService = tokenBlocklistService;
     }
 
     public UserResponse register(RegisterRequest request) {
@@ -114,6 +118,22 @@ public class UserService {
     public User getByEmail(String email) {
         return userRepository.findByEmail(email.toLowerCase())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
+
+    public void logout(String token) {
+        long ttl = jwtTokenProvider.getRemainingTtlSeconds(token);
+        tokenBlocklistService.revoke(token, ttl);
+    }
+
+    public UserResponse updateProfile(User user, UpdateProfileRequest request) {
+        if (request.getPhone() != null && !request.getPhone().equals(user.getPhone())) {
+            if (userRepository.existsByPhone(request.getPhone())) {
+                throw new DuplicateResourceException("Phone number is already registered");
+            }
+            user.setPhone(request.getPhone());
+        }
+        user.setName(request.getName());
+        return UserResponse.from(userRepository.save(user));
     }
 
     public void resetPassword(ResetPasswordRequest request) {

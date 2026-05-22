@@ -47,6 +47,12 @@ public class JwtTokenProvider {
         return expirationMs;
     }
 
+    public long getRemainingTtlSeconds(String token) {
+        Date expiration = parseClaims(token).getExpiration();
+        long remainMs = expiration.getTime() - System.currentTimeMillis();
+        return Math.max(0, remainMs / 1000);
+    }
+
     private Claims parseClaims(String token) {
         return Jwts.parser()
             .verifyWith(signingKey())

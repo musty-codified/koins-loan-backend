@@ -9,6 +9,7 @@ import com.koins.loanbackend.dto.response.LoanResponse;
 import com.koins.loanbackend.dto.response.RepaymentScheduleResponse;
 import com.koins.loanbackend.service.LoanService;
 import com.koins.loanbackend.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

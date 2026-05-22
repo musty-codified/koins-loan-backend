@@ -9,7 +9,6 @@ import java.util.UUID;
 @Entity
 @Table(name = "webhook_events", indexes = {
     @Index(name = "idx_webhook_reference", columnList = "event_reference", unique = true),
-    @Index(name = "idx_webhook_provider",  columnList = "provider"),
     @Index(name = "idx_webhook_status",    columnList = "status")
 })
 public class WebhookEvent {
@@ -18,10 +17,6 @@ public class WebhookEvent {
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(updatable = false, nullable = false)
     private UUID id;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private PaymentProvider provider;
 
     @Column(name = "event_reference", nullable = false, unique = true, length = 100)
     private String eventReference;

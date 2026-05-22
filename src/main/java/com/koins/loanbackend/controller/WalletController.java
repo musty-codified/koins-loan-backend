@@ -9,6 +9,7 @@ import com.koins.loanbackend.dto.response.WalletResponse;
 import com.koins.loanbackend.service.TransactionService;
 import com.koins.loanbackend.service.UserService;
 import com.koins.loanbackend.service.WalletService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+@Tag(name = "Wallets", description = "Wallet balance, funding, and transaction history")
 @RestController
 @RequestMapping("/api/v1/wallets")
 public class WalletController {
@@ -62,5 +64,13 @@ public class WalletController {
             @PathVariable UUID walletId,
             @PageableDefault(size = 20, sort = "createdAt") Pageable pageable) {
         return transactionService.getWalletTransactions(walletId, pageable);
+    }
+
+    @GetMapping("/transactions/{transactionId}")
+    public TransactionResponse getTransaction(
+            @PathVariable UUID transactionId,
+            @AuthenticationPrincipal UserDetails principal) {
+        User user = userService.getByEmail(principal.getUsername());
+        return transactionService.getTransaction(transactionId, user.getId());
     }
 }

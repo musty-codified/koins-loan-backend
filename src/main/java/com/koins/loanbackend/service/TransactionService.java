@@ -74,6 +74,13 @@ public class TransactionService {
     }
 
     @Transactional(readOnly = true)
+    public TransactionResponse getTransaction(UUID transactionId, UUID userId) {
+        Transaction tx = transactionRepository.findByIdAndUserId(transactionId, userId)
+            .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
+        return TransactionResponse.from(tx);
+    }
+
+    @Transactional(readOnly = true)
     public Page<TransactionResponse> getWalletTransactions(UUID walletId, Pageable pageable) {
         return transactionRepository
             .findByWalletIdOrderByCreatedAtDesc(walletId, pageable)
