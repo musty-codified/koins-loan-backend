@@ -4,6 +4,7 @@ import com.koins.loanbackend.domain.User;
 import com.koins.loanbackend.domain.Wallet;
 import com.koins.loanbackend.exception.ResourceNotFoundException;
 import com.koins.loanbackend.repository.WalletRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,13 +12,10 @@ import java.util.UUID;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class WalletService {
 
     private final WalletRepository walletRepository;
-
-    public WalletService(WalletRepository walletRepository) {
-        this.walletRepository = walletRepository;
-    }
 
     public Wallet createForUser(User user) {
         Wallet wallet = new Wallet();

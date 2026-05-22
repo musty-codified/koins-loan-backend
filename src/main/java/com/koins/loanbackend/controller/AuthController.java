@@ -6,19 +6,17 @@ import com.koins.loanbackend.dto.response.UserResponse;
 import com.koins.loanbackend.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Authentication", description = "Register, activate, login, and password reset")
 @RestController
 @RequestMapping("/api/v1/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
     private final UserService userService;
-
-    public AuthController(UserService userService) {
-        this.userService = userService;
-    }
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)

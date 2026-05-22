@@ -6,6 +6,7 @@ import com.koins.loanbackend.dto.response.UserResponse;
 import com.koins.loanbackend.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,13 +15,10 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Users", description = "Profile management and logout")
 @RestController
 @RequestMapping("/api/v1/users")
+@RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
-
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     @PostMapping("/logout")
     @ResponseStatus(HttpStatus.NO_CONTENT)

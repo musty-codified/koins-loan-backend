@@ -2,10 +2,14 @@ package com.koins.loanbackend.domain;
 
 import com.koins.loanbackend.domain.enums.WebhookEventStatus;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "webhook_events", indexes = {
     @Index(name = "idx_webhook_reference", columnList = "event_reference", unique = true),
@@ -38,20 +42,4 @@ public class WebhookEvent {
     private void prePersist() {
         createdAt = LocalDateTime.now();
     }
-
-    public UUID getId() { return id; }
-
-    public String getEventReference() { return eventReference; }
-    public void setEventReference(String eventReference) { this.eventReference = eventReference; }
-
-    public String getEventType() { return eventType; }
-    public void setEventType(String eventType) { this.eventType = eventType; }
-
-    public WebhookEventStatus getStatus() { return status; }
-    public void setStatus(WebhookEventStatus status) { this.status = status; }
-
-    public String getFailureReason() { return failureReason; }
-    public void setFailureReason(String failureReason) { this.failureReason = failureReason; }
-
-    public LocalDateTime getCreatedAt() { return createdAt; }
 }

@@ -13,8 +13,8 @@ import com.koins.loanbackend.exception.ResourceNotFoundException;
 import com.koins.loanbackend.repository.LoanRepository;
 import com.koins.loanbackend.repository.RepaymentScheduleRepository;
 import com.koins.loanbackend.repository.WalletRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,8 +22,10 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class LoanService {
 
     private static final BigDecimal DEFAULT_INTEREST_RATE = new BigDecimal("0.1500");
@@ -35,19 +37,6 @@ public class LoanService {
     private final LoanAmortizationService amortizationService;
     private final TransactionService transactionService;
     private final WalletService walletService;
-    private final Logger log = LoggerFactory.getLogger(LoanService.class);
-    public LoanService(LoanRepository loanRepository,
-                       RepaymentScheduleRepository scheduleRepository, WalletRepository walletRepository,
-                       LoanAmortizationService amortizationService,
-                       TransactionService transactionService,
-                       WalletService walletService) {
-        this.loanRepository = loanRepository;
-        this.scheduleRepository = scheduleRepository;
-        this.walletRepository = walletRepository;
-        this.amortizationService = amortizationService;
-        this.transactionService = transactionService;
-        this.walletService = walletService;
-    }
 
     public Loan apply(User user, BigDecimal loanAmount, Integer tenureMonths) {
        Wallet wallet = walletRepository.findByUserId(user.getId()).

@@ -2,8 +2,8 @@ package com.koins.loanbackend.service;
 
 import com.koins.loanbackend.domain.User;
 import com.koins.loanbackend.domain.Wallet;
-import com.koins.loanbackend.domain.enums.OtpPurpose;
 import com.koins.loanbackend.domain.enums.AccountStatus;
+import com.koins.loanbackend.domain.enums.OtpPurpose;
 import com.koins.loanbackend.dto.request.*;
 import com.koins.loanbackend.dto.response.AuthResponse;
 import com.koins.loanbackend.dto.response.UserResponse;
@@ -13,8 +13,8 @@ import com.koins.loanbackend.exception.ResourceNotFoundException;
 import com.koins.loanbackend.repository.UserRepository;
 import com.koins.loanbackend.security.JwtTokenProvider;
 import com.koins.loanbackend.security.TokenBlocklistService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,11 +23,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class UserService {
-
-    private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
     private final WalletService walletService;
@@ -36,22 +36,6 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
     private final TokenBlocklistService tokenBlocklistService;
-
-    public UserService(UserRepository userRepository,
-                       WalletService walletService,
-                       OtpService otpService,
-                       PasswordEncoder passwordEncoder,
-                       JwtTokenProvider jwtTokenProvider,
-                       AuthenticationManager authenticationManager,
-                       TokenBlocklistService tokenBlocklistService) {
-        this.userRepository = userRepository;
-        this.walletService = walletService;
-        this.otpService = otpService;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.authenticationManager = authenticationManager;
-        this.tokenBlocklistService = tokenBlocklistService;
-    }
 
     public UserResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -84,7 +68,6 @@ public class UserService {
         user.setWallet(wallet);
         return UserResponse.from(user);
     }
-
 
     public AuthResponse login(LoginRequest request) {
         Authentication auth = authenticationManager.authenticate(
@@ -138,7 +121,6 @@ public class UserService {
 
     public void resetPassword(ResetPasswordRequest request) {
         String email = request.getEmail().toLowerCase();
-        // OTP validation + atomic consumption — invalid or expired OTP aborts here
         if (!otpService.validateAndConsume(email, OtpPurpose.PASSWORD_RESET, request.getOtp())) {
             throw new BusinessRuleException("OTP is invalid or has expired");
         }

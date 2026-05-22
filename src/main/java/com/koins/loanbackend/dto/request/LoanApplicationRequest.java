@@ -4,8 +4,13 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.math.BigDecimal;
 
+@Getter
+@Setter
 public class LoanApplicationRequest {
 
     @NotNull
@@ -16,10 +21,4 @@ public class LoanApplicationRequest {
     @Min(1)
     @Max(12)
     private Integer tenureMonths;
-
-    public BigDecimal getLoanAmount() { return loanAmount; }
-    public void setLoanAmount(BigDecimal loanAmount) { this.loanAmount = loanAmount; }
-
-    public Integer getTenureMonths() { return tenureMonths; }
-    public void setTenureMonths(Integer tenureMonths) { this.tenureMonths = tenureMonths; }
 }

@@ -5,8 +5,8 @@ import com.koins.loanbackend.domain.enums.LoanStatus;
 import com.koins.loanbackend.domain.enums.RepaymentScheduleStatus;
 import com.koins.loanbackend.repository.LoanRepository;
 import com.koins.loanbackend.repository.RepaymentScheduleRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -21,11 +21,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+@Slf4j
 @Component
 @Profile("!test")
+@RequiredArgsConstructor
 public class LoanScheduler {
-
-    private static final Logger log = LoggerFactory.getLogger(LoanScheduler.class);
 
     @Value("${app.loan.late-fee-rate:0.02}")
     private BigDecimal lateFeeRate;
@@ -36,15 +36,6 @@ public class LoanScheduler {
     private final RepaymentScheduleRepository scheduleRepository;
     private final LoanRepository loanRepository;
 
-    public LoanScheduler(RepaymentScheduleRepository scheduleRepository,
-                         LoanRepository loanRepository) {
-        this.scheduleRepository = scheduleRepository;
-        this.loanRepository = loanRepository;
-    }
-
-    /**
-     * Runs daily at midnight.
-     */
     @Scheduled(cron = "0 0 0 * * ?")
     @Transactional
     public void processOverdueInstallments() {
@@ -67,7 +58,6 @@ public class LoanScheduler {
 
             installment.setLateFee(lateFee);
             installment.setStatus(RepaymentScheduleStatus.OVERDUE);
-
             affectedLoanIds.add(installment.getLoan().getId());
         }
         log.info("Marked {} installment(s) OVERDUE across {} loan(s)",

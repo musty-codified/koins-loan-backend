@@ -2,10 +2,15 @@ package com.koins.loanbackend.domain;
 
 import com.koins.loanbackend.domain.enums.WalletStatus;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "wallets")
 public class Wallet {
@@ -15,7 +20,6 @@ public class Wallet {
     @Column(updatable = false, nullable = false)
     private UUID id;
 
-    // Owning side — holds the user_id FK
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
@@ -41,29 +45,12 @@ public class Wallet {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
         if (this.currency == null) this.currency = "NGN";
-        if (this.balance == null) this.balance = BigDecimal.ZERO.setScale(2);
-        if (this.status == null) this.status = WalletStatus.ACTIVE;
+        if (this.balance == null)  this.balance  = BigDecimal.ZERO.setScale(2);
+        if (this.status == null)   this.status   = WalletStatus.ACTIVE;
     }
 
     @PreUpdate
     private void preUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-
-    public UUID getId() { return id; }
-
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
-
-    public BigDecimal getBalance() { return balance; }
-    public void setBalance(BigDecimal balance) { this.balance = balance; }
-
-    public String getCurrency() { return currency; }
-    public void setCurrency(String currency) { this.currency = currency; }
-
-    public WalletStatus getStatus() { return status; }
-    public void setStatus(WalletStatus status) { this.status = status; }
-
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
 }

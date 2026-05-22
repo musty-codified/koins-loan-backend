@@ -2,17 +2,21 @@ package com.koins.loanbackend.domain;
 
 import com.koins.loanbackend.domain.enums.RepaymentScheduleStatus;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "repayment_schedules", indexes = {
-    @Index(name = "idx_rs_loan_id",   columnList = "loan_id"),
-    @Index(name = "idx_rs_due_date",  columnList = "due_date"),
-    @Index(name = "idx_rs_status",    columnList = "status")
+    @Index(name = "idx_rs_loan_id",  columnList = "loan_id"),
+    @Index(name = "idx_rs_due_date", columnList = "due_date"),
+    @Index(name = "idx_rs_status",   columnList = "status")
 })
 public class RepaymentSchedule {
 
@@ -56,32 +60,4 @@ public class RepaymentSchedule {
         if (status == null)  status  = RepaymentScheduleStatus.UNPAID;
         if (lateFee == null) lateFee = BigDecimal.ZERO.setScale(2);
     }
-
-    public UUID getId() { return id; }
-
-    public Loan getLoan() { return loan; }
-    public void setLoan(Loan loan) { this.loan = loan; }
-
-    public Integer getInstallmentNumber() { return installmentNumber; }
-    public void setInstallmentNumber(Integer installmentNumber) { this.installmentNumber = installmentNumber; }
-
-    public LocalDate getDueDate() { return dueDate; }
-    public void setDueDate(LocalDate dueDate) { this.dueDate = dueDate; }
-
-    public BigDecimal getPrincipalAmount() { return principalAmount; }
-    public void setPrincipalAmount(BigDecimal principalAmount) { this.principalAmount = principalAmount; }
-
-    public BigDecimal getInterestAmount() { return interestAmount; }
-    public void setInterestAmount(BigDecimal interestAmount) { this.interestAmount = interestAmount; }
-
-    public BigDecimal getTotalInstallment() { return totalInstallment; }
-    public void setTotalInstallment(BigDecimal totalInstallment) { this.totalInstallment = totalInstallment; }
-
-    public BigDecimal getLateFee() { return lateFee; }
-    public void setLateFee(BigDecimal lateFee) { this.lateFee = lateFee; }
-
-    public RepaymentScheduleStatus getStatus() { return status; }
-    public void setStatus(RepaymentScheduleStatus status) { this.status = status; }
-
-    public LocalDateTime getCreatedAt() { return createdAt; }
 }

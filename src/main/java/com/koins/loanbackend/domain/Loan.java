@@ -2,11 +2,15 @@ package com.koins.loanbackend.domain;
 
 import com.koins.loanbackend.domain.enums.LoanStatus;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "loans", indexes = {
     @Index(name = "idx_loans_user_id", columnList = "user_id"),
@@ -53,24 +57,4 @@ public class Loan {
     private void preUpdate() {
         updatedAt = LocalDateTime.now();
     }
-
-    public UUID getId() { return id; }
-
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
-
-    public BigDecimal getLoanAmount() { return loanAmount; }
-    public void setLoanAmount(BigDecimal loanAmount) { this.loanAmount = loanAmount; }
-
-    public BigDecimal getInterestRate() { return interestRate; }
-    public void setInterestRate(BigDecimal interestRate) { this.interestRate = interestRate; }
-
-    public Integer getTenureMonths() { return tenureMonths; }
-    public void setTenureMonths(Integer tenureMonths) { this.tenureMonths = tenureMonths; }
-
-    public LoanStatus getStatus() { return status; }
-    public void setStatus(LoanStatus status) { this.status = status; }
-
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
 }

@@ -5,17 +5,17 @@ import com.koins.loanbackend.domain.enums.AccountStatus;
 import com.koins.loanbackend.domain.enums.UserRole;
 import com.koins.loanbackend.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
+@RequiredArgsConstructor
 public class AdminUserSeeder {
-
-    private static final Logger log = LoggerFactory.getLogger(AdminUserSeeder.class);
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -25,11 +25,6 @@ public class AdminUserSeeder {
 
     @Value("${app.admin.password}")
     private String adminPassword;
-
-    public AdminUserSeeder(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     @PostConstruct
     public void seed() {
@@ -50,7 +45,6 @@ public class AdminUserSeeder {
             log.info("Admin user seeded successfully [{}]", adminEmail);
             warnIfDefaultCredentials();
         } catch (DataIntegrityViolationException e) {
-            // Another instance seeded concurrently — safe to ignore
             log.debug("Admin user already exists (concurrent seed) — skipping");
         }
     }

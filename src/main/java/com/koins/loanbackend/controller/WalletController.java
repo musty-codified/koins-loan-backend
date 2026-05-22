@@ -11,6 +11,7 @@ import com.koins.loanbackend.service.UserService;
 import com.koins.loanbackend.service.WalletService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -24,19 +25,12 @@ import java.util.UUID;
 @Tag(name = "Wallets", description = "Wallet balance, funding, and transaction history")
 @RestController
 @RequestMapping("/api/v1/wallets")
+@RequiredArgsConstructor
 public class WalletController {
 
     private final WalletService walletService;
     private final TransactionService transactionService;
     private final UserService userService;
-
-    public WalletController(WalletService walletService,
-                            TransactionService transactionService,
-                            UserService userService) {
-        this.walletService = walletService;
-        this.transactionService = transactionService;
-        this.userService = userService;
-    }
 
     @GetMapping("/me")
     public WalletResponse getMyWallet(@AuthenticationPrincipal UserDetails principal) {

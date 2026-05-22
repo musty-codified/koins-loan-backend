@@ -3,11 +3,13 @@ package com.koins.loanbackend.dto.response;
 import com.koins.loanbackend.domain.Transaction;
 import com.koins.loanbackend.domain.enums.TransactionStatus;
 import com.koins.loanbackend.domain.enums.TransactionType;
+import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Getter
 public class TransactionResponse {
 
     private UUID id;
@@ -33,14 +35,4 @@ public class TransactionResponse {
         r.createdAt = tx.getCreatedAt();
         return r;
     }
-
-    public UUID getId() { return id; }
-    public UUID getWalletId() { return walletId; }
-    public UUID getUserId() { return userId; }
-    public TransactionType getType() { return type; }
-    public TransactionStatus getStatus() { return status; }
-    public BigDecimal getAmount() { return amount; }
-    public String getReference() { return reference; }
-    public String getNarration() { return narration; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
 }

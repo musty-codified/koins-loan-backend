@@ -9,6 +9,7 @@ import com.koins.loanbackend.exception.BusinessRuleException;
 import com.koins.loanbackend.exception.ResourceNotFoundException;
 import com.koins.loanbackend.repository.TransactionRepository;
 import com.koins.loanbackend.repository.WalletRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,21 +21,15 @@ import java.util.UUID;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class TransactionService {
 
     private final TransactionRepository transactionRepository;
     private final WalletRepository walletRepository;
 
-    public TransactionService(TransactionRepository transactionRepository,
-                              WalletRepository walletRepository) {
-        this.transactionRepository = transactionRepository;
-        this.walletRepository = walletRepository;
-    }
-
     public TransactionResponse credit(UUID walletId, User user, BigDecimal amount,
                                       TransactionType type, String narration,
                                       String idempotencyKey) {
-        // Fast path: already processed — return cached result without touching balances
         Optional<Transaction> existing = transactionRepository.findByIdempotencyKey(idempotencyKey);
         if (existing.isPresent()) {
             return TransactionResponse.from(existing.get());
@@ -58,12 +53,10 @@ public class TransactionService {
             return TransactionResponse.from(existing.get());
         }
         Wallet wallet = lockedWallet(walletId);
-
         existing = transactionRepository.findByIdempotencyKey(idempotencyKey);
         if (existing.isPresent()) {
             return TransactionResponse.from(existing.get());
         }
-
         if (wallet.getBalance().compareTo(amount) < 0) {
             throw new BusinessRuleException("Insufficient wallet balance");
         }

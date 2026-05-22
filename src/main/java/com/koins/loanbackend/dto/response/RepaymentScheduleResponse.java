@@ -2,12 +2,14 @@ package com.koins.loanbackend.dto.response;
 
 import com.koins.loanbackend.domain.RepaymentSchedule;
 import com.koins.loanbackend.domain.enums.RepaymentScheduleStatus;
+import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Getter
 public class RepaymentScheduleResponse {
 
     private UUID id;
@@ -37,16 +39,4 @@ public class RepaymentScheduleResponse {
         r.createdAt = rs.getCreatedAt();
         return r;
     }
-
-    public UUID getId() { return id; }
-    public UUID getLoanId() { return loanId; }
-    public Integer getInstallmentNumber() { return installmentNumber; }
-    public LocalDate getDueDate() { return dueDate; }
-    public BigDecimal getPrincipalAmount() { return principalAmount; }
-    public BigDecimal getInterestAmount() { return interestAmount; }
-    public BigDecimal getTotalInstallment() { return totalInstallment; }
-    public BigDecimal getLateFee() { return lateFee; }
-    public BigDecimal getAmountDue() { return amountDue; }
-    public RepaymentScheduleStatus getStatus() { return status; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
 }

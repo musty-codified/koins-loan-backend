@@ -1,5 +1,8 @@
 package com.koins.loanbackend.dto.response;
 
+import lombok.Getter;
+
+@Getter
 public class AuthResponse {
 
     private final String accessToken;
@@ -10,8 +13,4 @@ public class AuthResponse {
         this.accessToken = accessToken;
         this.expiresIn = expiresIn;
     }
-
-    public String getAccessToken() { return accessToken; }
-    public String getTokenType() { return tokenType; }
-    public long getExpiresIn() { return expiresIn; }
 }

@@ -2,8 +2,13 @@ package com.koins.loanbackend.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.math.BigDecimal;
 
+@Getter
+@Setter
 public class FundWalletRequest {
 
     @NotNull
@@ -11,9 +16,4 @@ public class FundWalletRequest {
     private BigDecimal amount;
 
     private String narration;
-
-    public BigDecimal getAmount() { return amount; }
-    public void setAmount(BigDecimal amount) { this.amount = amount; }
-    public String getNarration() { return narration; }
-    public void setNarration(String narration) { this.narration = narration; }
 }

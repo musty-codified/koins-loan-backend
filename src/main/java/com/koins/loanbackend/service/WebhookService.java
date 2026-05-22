@@ -10,8 +10,8 @@ import com.koins.loanbackend.dto.webhook.PaystackWebhookPayload;
 import com.koins.loanbackend.exception.ResourceNotFoundException;
 import com.koins.loanbackend.repository.UserRepository;
 import com.koins.loanbackend.repository.WebhookEventRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,10 +21,11 @@ import javax.crypto.spec.SecretKeySpec;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class WebhookService {
 
-    private static final Logger log = LoggerFactory.getLogger(WebhookService.class);
     private static final BigDecimal KOBO_DIVISOR = new BigDecimal("100");
 
     private final WebhookEventRepository webhookEventRepository;
@@ -35,18 +36,6 @@ public class WebhookService {
 
     @Value("${app.paystack.secret-key}")
     private String paystackSecretKey;
-
-    public WebhookService(WebhookEventRepository webhookEventRepository,
-                          UserRepository userRepository,
-                          WalletService walletService,
-                          TransactionService transactionService,
-                          ObjectMapper objectMapper) {
-        this.webhookEventRepository = webhookEventRepository;
-        this.userRepository = userRepository;
-        this.walletService = walletService;
-        this.transactionService = transactionService;
-        this.objectMapper = objectMapper;
-    }
 
     public boolean verifyPaystackSignature(String rawBody, String signature) {
         try {

@@ -2,10 +2,13 @@ package com.koins.loanbackend.dto.response;
 
 import com.koins.loanbackend.domain.Wallet;
 import com.koins.loanbackend.domain.enums.WalletStatus;
+import lombok.Getter;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Getter
 public class WalletResponse {
 
     private UUID id;
@@ -23,10 +26,4 @@ public class WalletResponse {
         r.createdAt = wallet.getCreatedAt();
         return r;
     }
-
-    public UUID getId() { return id; }
-    public BigDecimal getBalance() { return balance; }
-    public String getCurrency() { return currency; }
-    public WalletStatus getStatus() { return status; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
 }

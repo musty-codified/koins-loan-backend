@@ -1,11 +1,16 @@
 package com.koins.loanbackend.domain;
 
-import com.koins.loanbackend.domain.enums.UserRole;
 import com.koins.loanbackend.domain.enums.AccountStatus;
+import com.koins.loanbackend.domain.enums.UserRole;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Getter
+@Setter
 @Entity
 @Table(
     name = "users",
@@ -50,7 +55,6 @@ public class User {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    // Inverse side — Wallet owns the FK (user_id)
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Wallet wallet;
 
@@ -60,35 +64,4 @@ public class User {
         if (this.status == null) this.status = AccountStatus.PENDING;
         if (this.role == null)   this.role   = UserRole.USER;
     }
-
-    public UUID getId() { return id; }
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-
-    public String getPhone() { return phone; }
-    public void setPhone(String phone) { this.phone = phone; }
-
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
-
-    public String getBvn() { return bvn; }
-    public void setBvn(String bvn) { this.bvn = bvn; }
-
-    public String getNin() { return nin; }
-    public void setNin(String nin) { this.nin = nin; }
-
-    public AccountStatus getStatus() { return status; }
-    public void setStatus(AccountStatus status) { this.status = status; }
-
-    public LocalDateTime getCreatedAt() { return createdAt; }
-
-    public UserRole getRole() { return role; }
-    public void setRole(UserRole role) { this.role = role; }
-
-    public Wallet getWallet() { return wallet; }
-    public void setWallet(Wallet wallet) { this.wallet = wallet; }
 }

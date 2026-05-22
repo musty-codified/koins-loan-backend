@@ -3,7 +3,11 @@ package com.koins.loanbackend.dto.request;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class UpdateProfileRequest {
 
     @NotBlank(message = "Name is required")
@@ -12,10 +16,4 @@ public class UpdateProfileRequest {
 
     @Pattern(regexp = "^\\+?[0-9]{10,15}$", message = "Invalid phone number format")
     private String phone;
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public String getPhone() { return phone; }
-    public void setPhone(String phone) { this.phone = phone; }
 }

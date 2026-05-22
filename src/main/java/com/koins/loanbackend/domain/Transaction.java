@@ -3,11 +3,15 @@ package com.koins.loanbackend.domain;
 import com.koins.loanbackend.domain.enums.TransactionStatus;
 import com.koins.loanbackend.domain.enums.TransactionType;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "transactions", indexes = {
     @Index(name = "idx_txn_wallet_id",       columnList = "wallet_id"),
@@ -63,23 +67,4 @@ public class Transaction {
             idempotencyKey = UUID.randomUUID().toString();
         }
     }
-
-    public UUID getId() { return id; }
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
-    public Wallet getWallet() { return wallet; }
-    public void setWallet(Wallet wallet) { this.wallet = wallet; }
-    public TransactionType getType() { return type; }
-    public void setType(TransactionType type) { this.type = type; }
-    public TransactionStatus getStatus() { return status; }
-    public void setStatus(TransactionStatus status) { this.status = status; }
-    public BigDecimal getAmount() { return amount; }
-    public void setAmount(BigDecimal amount) { this.amount = amount; }
-    public String getReference() { return reference; }
-    public void setReference(String reference) { this.reference = reference; }
-    public String getNarration() { return narration; }
-    public void setNarration(String narration) { this.narration = narration; }
-    public String getIdempotencyKey() { return idempotencyKey; }
-    public void setIdempotencyKey(String idempotencyKey) { this.idempotencyKey = idempotencyKey; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
 }
